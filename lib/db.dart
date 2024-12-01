@@ -12,7 +12,7 @@ class Db {
   initialDb() async {
     String databasepath = await getDatabasesPath();
     String path = join(databasepath,'mina.db');
-    Database mydb = await openDatabase(path,onCreate: _onCreate,version: 6,onUpgrade: _onUpgrade);
+    Database mydb = await openDatabase(path,onCreate: _onCreate,version: 8,onUpgrade: _onUpgrade);
     return mydb;
   }
   _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -47,15 +47,16 @@ class Db {
     ''');
 
       await db.execute('''
-      CREATE TABLE customers (
-        id_customer INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT NOT NULL,
-        username TEXT NOT NULL,
-        password TEXT NOT NULL,
-        address TEXT NOT NULL,
-        phone TEXT NOT NULL
-      );
-    ''');
+        CREATE TABLE customers (
+          id_customer INTEGER PRIMARY KEY AUTOINCREMENT,
+          email TEXT NOT NULL UNIQUE,  
+          username TEXT NOT NULL UNIQUE,
+          password TEXT NOT NULL,
+          address TEXT NOT NULL,
+          phone TEXT NOT NULL
+        );
+      ''');
+
 
       await db.execute('''
       CREATE TABLE cart (
@@ -213,7 +214,7 @@ class Db {
 
 
 
-      print("Database upgraded ans insertion complete to version {$newVersion} ==============================");
+      print("Database upgraded and insertion complete to version {$newVersion} ==============================");
 
   }
 

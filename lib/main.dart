@@ -1,3 +1,5 @@
+import 'package:design_pattern/home_screen.dart';
+import 'package:design_pattern/login_singup/first_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -16,23 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(backgroundColor: Colors.blue,title: Text("try DB"),centerTitle: true,),
-        body: Column(
-          children: [
-
-            ElevatedButton(
-              onPressed: () async {
-                List<Map> response = await mydb.readData("SELECT * FROM 'categories'");
-                print(response);
-              },
-              child: Text("read data from books"),
-            ),
-
-
-          ],
-        ),
-      ),
+      home: FirstScreen(),
     );
   }
 }
