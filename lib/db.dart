@@ -25,6 +25,7 @@ class Db {
       await db.execute('DROP TABLE IF EXISTS transactions');
       await db.execute('DROP TABLE IF EXISTS status');
       await db.execute('DROP TABLE IF EXISTS comments');
+
       await db.execute('''
       CREATE TABLE categories (
         id_category INTEGER PRIMARY KEY AUTOINCREMENT,

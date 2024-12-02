@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'book_detail_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final int id_customer;
+
+  const HomePage({super.key, required this.id_customer});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -26,10 +28,7 @@ class _HomePageState extends State<HomePage> {
       // await Future.delayed(Duration(seconds: 1)); // Simulate delay
       List<Map> response = await Database.database.readData("SELECT * FROM 'books'");
       return response.map((e) {
-        return Book(
-          title: e['title'],
-          coverURL: "assets/images/${e['cover_URL']}",
-        );
+        return Book(price: e['price'], title: e['title'], author: e['author'], category_id: e['id_cat'], quantity: e['quantity'], cover_URL: "assets/images/${e['cover_URL']}", edition: e['edition'], id_book: e['id_book']);
       }).toList();
     } catch (e) {
       throw Exception("Failed to fetch books: $e");
@@ -69,7 +68,7 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => BookDetailPage(book: books[index]),
+                        builder: (context) => BookDetailPage(book: books[index], id_customer: widget.id_customer,),
                       ),
                     );
                   },
@@ -79,7 +78,7 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Expanded(
                           child: Image.asset(
-                            books[index].coverURL,
+                            books[index].cover_URL,
                             fit: BoxFit.cover,
                           ),
                         ),

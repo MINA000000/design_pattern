@@ -1,10 +1,11 @@
+import 'package:design_pattern/cart_page.dart';
 import 'package:design_pattern/home_page.dart';
 import 'package:design_pattern/profile_page.dart';
 import 'package:design_pattern/search_page.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  int id_customer;
+  final int id_customer;
   HomeScreen({required this.id_customer});
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -12,15 +13,35 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  final List<Widget> _pages = [
-    HomePage(),
-    SearchPage(),
-    ProfilePage()
-  ];
+  late List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize _pages here since widget is available
+    _pages = [
+      HomePage(id_customer: widget.id_customer),
+      SearchPage(),
+      ProfilePage(),
+      CartPage( customer_id: 1,),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Welcome ${widget.id_customer}",style: TextStyle(fontSize: 26,fontWeight: FontWeight.bold,color: Colors.amber),),centerTitle: true,backgroundColor: Colors.blue,),
+      appBar: AppBar(
+        title: Text(
+          "Welcome ${widget.id_customer}",
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.bold,
+            color: Colors.amber,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+      ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -42,9 +63,15 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.person),
             label: 'Profile',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
         ],
+        selectedItemColor: Colors.blue, // Color for the selected item
+        unselectedItemColor: Colors.grey, // Color for unselected items
+        backgroundColor: Colors.white, // Background color of the BottomNavigationBar
       ),
     );
-
   }
 }
