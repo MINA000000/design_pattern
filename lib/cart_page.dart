@@ -24,7 +24,8 @@ class _CartPageState extends State<CartPage> {
   // Function to simulate loading data (replace with your database query)
   Future<void> loadCartData() async {
     // Directly insert the customer_id without string interpolation
-    String sql = "SELECT * FROM cart WHERE id_customer = ${widget.customer_id};";
+    String sql =
+        "SELECT * FROM cart WHERE id_customer = ${widget.customer_id};";
 
     List<Map> response = await Database.database.readData(sql);
     print(response.length);
@@ -33,8 +34,6 @@ class _CartPageState extends State<CartPage> {
       cartItems = response;
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +45,72 @@ class _CartPageState extends State<CartPage> {
         itemCount: cartItems.length,
         itemBuilder: (context, index) {
           final cartItem = cartItems[index];
-          return ListTile(
-            title: Text("${cartItem['id_book']}"),
-            subtitle: Text('Quantity: ${cartItem['quantity']}'),
-          );
+          return CartItemWidget(cartItem: cartItem);
         },
+      ),
+    );
+  }
+}
+
+class CartItemWidget extends StatelessWidget {
+  const CartItemWidget({
+    super.key,
+    required this.cartItem,
+  });
+
+  final Map cartItem;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(16),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.blue,
+        ),
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Icon(
+                  Icons.shopping_cart,
+                  color: Colors.amber,
+                )),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Text("book name"),
+            ),
+            Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red
+                    ),
+                    onPressed: () async{
+
+                    },
+                    child: Text("Delete",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,color: Colors.amber),),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.greenAccent
+                    ),
+                    onPressed: () {},
+                    child: Text("Buy",style: TextStyle(fontWeight: FontWeight.bold),),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
