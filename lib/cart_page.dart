@@ -17,13 +17,11 @@ class _CartPageState extends State<CartPage> {
   @override
   void initState() {
     super.initState();
-    // Load your data when the page is opened
     loadCartData();
   }
 
   // Function to simulate loading data (replace with your database query)
   Future<void> loadCartData() async {
-    // Directly insert the customer_id without string interpolation
     String sql =
         "SELECT * FROM cart WHERE id_customer = ${widget.customer_id};";
 
@@ -33,6 +31,11 @@ class _CartPageState extends State<CartPage> {
     setState(() {
       cartItems = response;
     });
+  }
+
+  // Function to update cart when item is deleted
+  void changeState() {
+    loadCartData();
   }
 
   @override
@@ -45,7 +48,10 @@ class _CartPageState extends State<CartPage> {
         itemCount: cartItems.length,
         itemBuilder: (context, index) {
           final cartItem = cartItems[index];
-          return CartItemWidget(cartItem: cartItem);
+          return CartItemWidget(
+            cartItem: cartItem,
+            changeState: changeState, // Pass function as callback
+          );
         },
       ),
     );
@@ -53,12 +59,14 @@ class _CartPageState extends State<CartPage> {
 }
 
 class CartItemWidget extends StatelessWidget {
+  final Map cartItem;
+  final VoidCallback changeState; // Correctly type the callback
+
   const CartItemWidget({
     super.key,
     required this.cartItem,
+    required this.changeState,
   });
-
-  final Map cartItem;
 
   @override
   Widget build(BuildContext context) {
@@ -74,11 +82,12 @@ class CartItemWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Icon(
-                  Icons.shopping_cart,
-                  color: Colors.amber,
-                )),
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Icon(
+                Icons.shopping_cart,
+                color: Colors.amber,
+              ),
+            ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10),
               child: Text("book name"),
@@ -88,23 +97,35 @@ class CartItemWidget extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red
-                    ),
-                    onPressed: () async{
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    onPressed: () async {
+                      String sql =
+                          "DELETE FROM cart WHERE id_customer=${cartItem['id_customer']} AND id_book=${cartItem['id_book']}";
+                      int response = await Database.database.deleteData(sql);
+                      print(response);
 
+                      if (response > 0) {
+                        changeState(); // Notify parent to reload data
+                      }
                     },
-                    child: Text("Delete",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,color: Colors.amber),),
+                    child: Text(
+                      "Delete",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.amber),
+                    ),
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.greenAccent
-                    ),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent),
                     onPressed: () {},
-                    child: Text("Buy",style: TextStyle(fontWeight: FontWeight.bold),),
+                    child: Text(
+                      "Buy",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ],
