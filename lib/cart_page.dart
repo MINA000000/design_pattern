@@ -1,42 +1,18 @@
+import 'package:design_pattern/cart_provider.dart';
 import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CartPage extends StatefulWidget {
   final int customer_id;
 
-  const CartPage({super.key, required this.customer_id});
+  const CartPage({required this.customer_id});
 
   @override
   State<CartPage> createState() => _CartPageState();
 }
 
 class _CartPageState extends State<CartPage> {
-  // This will store your cart data
-  List<Map> cartItems = [];
-
-  @override
-  void initState() {
-    super.initState();
-    loadCartData();
-  }
-
-  // Function to simulate loading data (replace with your database query)
-  Future<void> loadCartData() async {
-    String sql =
-        "SELECT * FROM cart WHERE id_customer = ${widget.customer_id};";
-
-    List<Map> response = await Database.database.readData(sql);
-    print(response.length);
-
-    setState(() {
-      cartItems = response;
-    });
-  }
-
-  // Function to update cart when item is deleted
-  void changeState() {
-    loadCartData();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,32 +20,44 @@ class _CartPageState extends State<CartPage> {
       appBar: AppBar(
         title: Text("Cart"),
       ),
-      body: ListView.builder(
-        itemCount: cartItems.length,
-        itemBuilder: (context, index) {
-          final cartItem = cartItems[index];
-          return CartItemWidget(
-            cartItem: cartItem,
-            changeState: changeState, // Pass function as callback
-          );
-        },
+      body: ChangeNotifierProvider(
+        create: (BuildContext context) => CartProvider(customer_id: widget.customer_id),
+        child: ListViewWidget(),
       ),
     );
   }
 }
 
+class ListViewWidget extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    CartProvider cartProvider = Provider.of<CartProvider>(context);
+    cartProvider.loadCartData();
+    return ListView.builder(
+      itemCount: cartProvider.cartItems.length,
+      itemBuilder: (context, index) {
+        final cartItem = cartProvider.cartItems[index];
+        return CartItemWidget(
+          cartItem: cartItem, // Pass function as callback
+        );
+      },
+    );
+  }
+}
+
+
 class CartItemWidget extends StatelessWidget {
   final Map cartItem;
-  final VoidCallback changeState; // Correctly type the callback
 
   const CartItemWidget({
     super.key,
     required this.cartItem,
-    required this.changeState,
   });
 
   @override
   Widget build(BuildContext context) {
+    CartProvider cartProvider = Provider.of<CartProvider>(context);
     return Padding(
       padding: EdgeInsets.all(16),
       child: Container(
@@ -99,14 +87,7 @@ class CartItemWidget extends StatelessWidget {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                     onPressed: () async {
-                      String sql =
-                          "DELETE FROM cart WHERE id_customer=${cartItem['id_customer']} AND id_book=${cartItem['id_book']}";
-                      int response = await Database.database.deleteData(sql);
-                      print(response);
-
-                      if (response > 0) {
-                        changeState(); // Notify parent to reload data
-                      }
+                      cartProvider.removeCartItem(cartItem);
                     },
                     child: Text(
                       "Delete",

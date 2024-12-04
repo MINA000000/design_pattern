@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 
 class CartProvider with ChangeNotifier {
   List<Map> _cartItems = [];
-
+  int customer_id;
   List<Map> get cartItems => _cartItems;
-
+  CartProvider({required this.customer_id});
   // Method to load cart data (simulate or fetch from the database)
-  Future<void> loadCartData(int customerId) async {
+  Future<void> loadCartData() async {
     // Simulating data fetch (replace with your actual database call)
-    String sql = "SELECT * FROM cart WHERE id_customer = $customerId;";
+    String sql = "SELECT * FROM cart WHERE id_customer = $customer_id;";
     List<Map> response = await Database.database.readData(sql); // Database call
 
     _cartItems = response;
@@ -26,9 +26,4 @@ class CartProvider with ChangeNotifier {
 
   }
 
-  // Method to increment (if needed)
-  void increment() {
-    // Your increment logic
-    notifyListeners(); // Notify listeners after updating
-  }
 }
