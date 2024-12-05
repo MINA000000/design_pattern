@@ -1,6 +1,6 @@
 import 'package:design_pattern/cart_page.dart';
 import 'package:design_pattern/home_page.dart';
-import 'package:design_pattern/profile_page.dart';
+import 'package:design_pattern/profile/profile_page.dart';
 import 'package:design_pattern/search_page.dart';
 import 'package:flutter/material.dart';
 
@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _pages = [
       HomePage(id_customer: widget.id_customer),
       SearchPage(),
-      ProfilePage(),
+      ProfilePage(customer_id: widget.id_customer,),
       CartPage( customer_id: 1,),
     ];
   }

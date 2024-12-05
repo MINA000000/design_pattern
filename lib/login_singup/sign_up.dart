@@ -25,160 +25,11 @@ class _SignUpState extends State<SignUp> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Email TextField
-          Center(
-            child: SizedBox(
-              width: 300,
-              height: 50,
-              child: TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  hintText: "Enter your email",
-                  labelText: "Email",
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: isEmailTaken ? Colors.red : (isFieldEmpty ? Colors.red : Colors.grey),
-                      width: 1.0,
-                    ),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          // userName TextField
-          Center(
-            child: SizedBox(
-              width: 300,
-              height: 50,
-              child: TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  hintText: "Enter your name",
-                  labelText: "Name",
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: isNameTaken ? Colors.red : (isFieldEmpty ? Colors.red : Colors.grey),
-                      width: 1.0,
-                    ),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                ),
-                keyboardType: TextInputType.text,
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          // Password TextField
-          Center(
-            child: SizedBox(
-              width: 300,
-              height: 50,
-              child: TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: "Enter your password",
-                  labelText: "Password",
-                  prefixIcon: Icon(Icons.password),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: isFieldEmpty ? Colors.red : Colors.grey,
-                      width: 1.0,
-                    ),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                ),
-                keyboardType: TextInputType.visiblePassword,
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          // address TextField
-          Center(
-            child: SizedBox(
-              width: 300,
-              height: 50,
-              child: TextField(
-                controller: _addressController,
-                decoration: InputDecoration(
-                  hintText: "Enter your address",
-                  labelText: "Address",
-                  prefixIcon: Icon(Icons.location_history),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: isFieldEmpty ? Colors.red : Colors.grey,
-                      width: 1.0,
-                    ),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                ),
-                keyboardType: TextInputType.text,
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          // phone TextField
-          Center(
-            child: SizedBox(
-              width: 300,
-              height: 50,
-              child: TextField(
-                controller: _phoneController,
-                decoration: InputDecoration(
-                  hintText: "Enter your phone number",
-                  labelText: "Phone Number",
-                  prefixIcon: Icon(Icons.phone),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: isFieldEmpty ? Colors.red : Colors.grey,
-                      width: 1.0,
-                    ),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ),
+          TextFieldWidget(hintText: "Enter your Email", textInputType: TextInputType.emailAddress, controller: _emailController, icon: Icons.email, isTaken: isEmailTaken, isFieldEmpty: isFieldEmpty, labelText: "email"),
+          TextFieldWidget(hintText: "Enter your Name", textInputType: TextInputType.text, controller: _nameController, icon: Icons.person, isTaken: isNameTaken, isFieldEmpty: isFieldEmpty, labelText: "name"),
+          TextFieldWidget(hintText: "Enter your Password", textInputType: TextInputType.visiblePassword, controller: _passwordController, icon: Icons.password, isTaken: false, isFieldEmpty: isFieldEmpty, labelText: "Password"),
+          TextFieldWidget(hintText: "Enter your Address", textInputType: TextInputType.text, controller: _addressController, icon: Icons.location_history, isTaken: false, isFieldEmpty: isFieldEmpty, labelText: "Address"),
+          TextFieldWidget(hintText: "Enter your phone number", textInputType: TextInputType.number, controller: _phoneController, icon: Icons.phone, isTaken: false, isFieldEmpty: isFieldEmpty, labelText: "Phone Number"),
           SizedBox(height: 10),
           // Sign Up Button
           Center(
@@ -187,6 +38,10 @@ class _SignUpState extends State<SignUp> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () async {
+                  // String sql = "SELECT * FROM customers";
+                  // List<Map> response = await Database.database.readData(sql);
+                  // print(response);
+                  // return;
                   String email = _emailController.text;
                   String password = _passwordController.text;
                   String name = _nameController.text;
@@ -248,6 +103,50 @@ class _SignUpState extends State<SignUp> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class TextFieldWidget extends StatelessWidget {
+  String hintText ;
+  String labelText;
+  IconData icon ;
+  TextInputType textInputType;
+   TextEditingController controller;
+   bool isTaken;
+   bool isFieldEmpty;
+  TextFieldWidget({required this.hintText,required this.textInputType,required this.controller,required this.icon,required this.isTaken,required this.isFieldEmpty,required this.labelText});
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: 300,
+        height: 50,
+        child: TextField(
+          obscureText: icon==Icons.password?true:false,
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: hintText,
+            labelText: labelText,
+            prefixIcon: Icon(icon),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue, width: 2.0),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: isTaken ? Colors.red : (isFieldEmpty ? Colors.red : Colors.grey),
+                width: 1.0,
+              ),
+            ),
+            filled: true,
+            fillColor: Colors.grey[200],
+          ),
+          keyboardType: textInputType,
+        ),
       ),
     );
   }
