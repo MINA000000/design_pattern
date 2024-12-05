@@ -74,4 +74,13 @@ class CartProvider with ChangeNotifier {
       else
         print(response);
   }
+  Future<void> deleteTransaction(Map transactionItem,int id_book) async {
+    String sql = "DELETE FROM transactions WHERE id_book = ${transactionItem['id_book']} AND id_customer = ${transactionItem['id_customer']} AND id_status=2";
+    int response = await Database.database.deleteData(sql);
+
+    print(response);
+    _transactionsItems.remove(transactionItem); // Remove item from list
+    notifyListeners(); // Notify listeners to update the UI
+
+  }
 }

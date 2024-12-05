@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,10 +10,10 @@ import 'cart_provider.dart';
 import 'edit_cart_item.dart';
 
 class TransactionItem extends StatefulWidget {
-  final Map cartItem;
+  final Map transactionItem;
 
   const TransactionItem({
-    required this.cartItem,
+    required this.transactionItem,
   });
 
   @override
@@ -31,7 +33,7 @@ class _TransactionItemState extends State<TransactionItem> {
   void _loadBookData() async {
     try {
       String sql =
-          "SELECT * FROM books WHERE id_book = ${widget.cartItem['id_book']}";
+          "SELECT * FROM books WHERE id_book = ${widget.transactionItem['id_book']}";
       List<Map> response =
       await Database.database.readData(sql);
 
@@ -88,13 +90,30 @@ class _TransactionItemState extends State<TransactionItem> {
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Text("${book?.title ?? 'Loading...'}"),
+              child: Text("${book?.title ?? 'Loading...'}",style: TextStyle(color: Colors.black45,fontSize: 20,fontWeight: FontWeight.bold),),
             ),
             Row(
               children: [
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text("Pendding"),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red),
+                    onPressed: () async {
+                      await cartProvider.deleteTransaction(widget.transactionItem, book!.id_book);
+                    },
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.amber),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text("Pendding",style: TextStyle(color: Colors.yellow,fontSize: 20),),
                 ),
               ],
             )

@@ -35,6 +35,13 @@ class ListViewWidget1 extends StatefulWidget {
   State<ListViewWidget1> createState() => _ListViewWidget1State();
 }
 class _ListViewWidget1State extends State<ListViewWidget1> {
+  changeState()
+  {
+
+    setState(() {
+
+    });
+  }
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -49,7 +56,7 @@ class _ListViewWidget1State extends State<ListViewWidget1> {
       itemCount: cartProvider.transactionsItems.length,
       itemBuilder: (context, index) {
         final cartItem = cartProvider.transactionsItems[index];
-        return TransactionItem(cartItem: cartItem);
+        return TransactionItem(transactionItem: cartItem);
       },
     );
   }
