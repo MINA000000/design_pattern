@@ -1,3 +1,4 @@
+import 'package:design_pattern/admin_package/admin_home_page.dart';
 import 'package:design_pattern/home_screen.dart';
 import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +115,24 @@ class _SignInState extends State<SignIn> {
                 onPressed: () async {
                   String email = _emailController.text;
                   String password = _passwordController.text;
-
+                  if(email=="admin")
+                    {
+                      if(password=="admin")
+                        {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => AdminHomePage()),
+                                (Route<dynamic> route) => false, // This removes all previous routes
+                          );
+                        }
+                      else
+                        {
+                          setState(() {
+                            fail = true;
+                          });
+                        }
+                      return;
+                    }
                   // Create the SQL query to check for the email and password
                   String sql = "SELECT * FROM customers WHERE email = '$email' AND password = '$password'";
 

@@ -1,5 +1,6 @@
 import 'package:design_pattern/home_screen.dart';
 import 'package:design_pattern/login_singup/first_screen.dart';
+import 'package:design_pattern/login_singup/sign_in.dart';
 import 'package:design_pattern/login_singup/sign_up.dart';
 import 'package:design_pattern/profile/profile_page.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomeScreen(id_customer: 1),
+      home: SignIn(),
     );
   }
 }

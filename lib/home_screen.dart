@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Initialize _pages here since widget is available
     _pages = [
       HomePage(id_customer: widget.id_customer),
-      SearchPage(),
+      SearchPage(id_Customer: widget.id_customer,),
       ProfilePage(customer_id: widget.id_customer,),
       CartPage( customer_id: 1,),
     ];

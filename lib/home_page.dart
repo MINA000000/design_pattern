@@ -24,8 +24,6 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<Book>> fetchBooks() async {
     try {
-      // Simulating a database read
-      // await Future.delayed(Duration(seconds: 1)); // Simulate delay
       List<Map> response = await Database.database.readData("SELECT * FROM 'books'");
       return response.map((e) {
         return Book(price: e['price'], title: e['title'], author: e['author'], category_id: e['id_cat'], quantity: e['quantity'], cover_URL: "assets/images/${e['cover_URL']}", edition: e['edition'], id_book: e['id_book']);
