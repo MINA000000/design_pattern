@@ -33,15 +33,24 @@ class _UserMainPageState extends State<UserMainPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Welcome ${widget.id_customer}",
+          "Welcome ${widget.id_customer}", // Display username
           style: TextStyle(
-            fontSize: 26,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.amber,
+            color: Colors.white,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.blue,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue, Colors.purple], // Gradient background
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 10, // Shadow effect
       ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

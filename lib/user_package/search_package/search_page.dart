@@ -1,15 +1,11 @@
 import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
-
 import '../book_items/book.dart';
 import '../book_items/book_detail_page.dart';
 
 class SearchPage extends StatefulWidget {
-  // const SearchPage({super.key});
   int id_Customer;
-
   SearchPage({required this.id_Customer});
-
   get id_customer => id_Customer;
 
   @override
@@ -18,6 +14,9 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   late Future<List<Book>> _booksFuture;
+  String searchQuery = "";
+  String selectedCategory = "All Categories";
+  String selectedSortBy = "Price (Low to High)";
 
   @override
   void initState() {
@@ -27,8 +26,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<List<Book>> fetchBooks() async {
     try {
-      List<Map> response =
-          await Database.database.readData("SELECT * FROM 'books'");
+      List<Map> response = await Database.database.readData("SELECT * FROM 'books'");
       return response.map((e) {
         return Book(
             price: e['price'],
@@ -48,25 +46,59 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       body: FutureBuilder<List<Book>>(
-        future: _booksFuture, // Use the Future
+        future: _booksFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // Show a loading spinner while waiting for data
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            // Show an error message if something goes wrong
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            // Show a message if no books are available
             return Center(child: Text("No books found."));
           } else {
-            // Display the books once data is available
             final books = snapshot.data!;
+            // Filter and search logic
+            List<Book> filteredBooks = books
+                .where((book) =>
+            book.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+                book.author.toLowerCase().contains(searchQuery.toLowerCase()))
+                .toList();
+
+            if (selectedCategory != "All Categories") {
+              filteredBooks = filteredBooks
+                  .where((book) => book.category_id.toString() == selectedCategory)
+                  .toList();
+            }
+
+            if (selectedSortBy == "Price (Low to High)") {
+              filteredBooks.sort((a, b) => a.price.compareTo(b.price));
+            } else if (selectedSortBy == "Price (High to Low)") {
+              filteredBooks.sort((a, b) => b.price.compareTo(a.price));
+            }
+
             return Column(
               children: [
-                SearchElements(books: _booksFuture,),
-                SizedBox(height: 10,),
+                SearchElements(
+                  onSearchChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                  onCategoryChanged: (value) {
+                    setState(() {
+                      selectedCategory = value;
+                    });
+                  },
+                  onSortChanged: (value) {
+                    setState(() {
+                      selectedSortBy = value;
+                    });
+                  },
+                  selectedCategory: selectedCategory,
+                  selectedSortBy: selectedSortBy,
+                ),
+                SizedBox(height: 10),
                 Expanded(
                   child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -75,7 +107,7 @@ class _SearchPageState extends State<SearchPage> {
                       mainAxisSpacing: 10,
                       childAspectRatio: 0.7,
                     ),
-                    itemCount: books.length,
+                    itemCount: filteredBooks.length,
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {
@@ -83,7 +115,7 @@ class _SearchPageState extends State<SearchPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => BookDetailPage(
-                                book: books[index],
+                                book: filteredBooks[index],
                                 id_customer: widget.id_customer,
                               ),
                             ),
@@ -95,14 +127,14 @@ class _SearchPageState extends State<SearchPage> {
                             children: [
                               Expanded(
                                 child: Image.asset(
-                                  books[index].cover_URL,
+                                  filteredBooks[index].cover_URL,
                                   fit: BoxFit.cover,
                                 ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  books[index].title,
+                                  filteredBooks[index].title,
                                   style: TextStyle(fontSize: 16),
                                   textAlign: TextAlign.center,
                                 ),
@@ -122,11 +154,21 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
-
 class SearchElements extends StatelessWidget {
-  Future<List<Book>> books ;
-  SearchElements({required this.books});
-  List<Book> filteredBooks =[];
+  final Function(String) onSearchChanged;
+  final Function(String) onCategoryChanged;
+  final Function(String) onSortChanged;
+  final String selectedCategory;
+  final String selectedSortBy;
+
+  SearchElements({
+    required this.onSearchChanged,
+    required this.onCategoryChanged,
+    required this.onSortChanged,
+    required this.selectedCategory,
+    required this.selectedSortBy,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -137,12 +179,45 @@ class SearchElements extends StatelessWidget {
             Container(
               width: 300,
               child: TextField(
-                onSubmitted: (value){
-
+                decoration: InputDecoration(
+                  labelText: 'Search by Title or Author',
+                  prefixIcon: Icon(Icons.search),
+                ),
+                onChanged: (value) {
+                  onSearchChanged(value);
                 },
               ),
             ),
-            Icon(Icons.search,size: 30,),
+          ],
+        ),
+        SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            DropdownButton<String>(
+              value: selectedCategory,
+              items: [
+                DropdownMenuItem(value: "All Categories", child: Text("All Categories")),
+                DropdownMenuItem(value: "3", child: Text("Fiction")),
+                DropdownMenuItem(value: "2", child: Text("Fantasy")),
+                DropdownMenuItem(value: "1", child: Text("Science")),
+                // Add more categories as needed
+              ],
+              onChanged: (value) {
+                onCategoryChanged(value!);
+              },
+            ),
+            SizedBox(width: 20),
+            DropdownButton<String>(
+              value: selectedSortBy,
+              items: [
+                DropdownMenuItem(value: "Price (Low to High)", child: Text("Price (Low to High)")),
+                DropdownMenuItem(value: "Price (High to Low)", child: Text("Price (High to Low)")),
+              ],
+              onChanged: (value) {
+                onSortChanged(value!);
+              },
+            ),
           ],
         ),
       ],
