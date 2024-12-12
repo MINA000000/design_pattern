@@ -11,5 +11,7 @@ class Database {
     return _instance;
   }
 
-  static Db database = Db();
+  // Singleton instance of Db
+   static Db database  = Db();
 }
+

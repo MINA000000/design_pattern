@@ -7,6 +7,7 @@ import 'db.dart';
 
 void main() {
   // Initialize database factory for Linux
+  Db mydb = Db();
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
   runApp(
