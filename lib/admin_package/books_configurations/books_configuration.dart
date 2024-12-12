@@ -1,3 +1,4 @@
+import 'package:design_pattern/admin_package/books_configurations/delete_book.dart';
 import 'package:design_pattern/admin_package/books_configurations/edit_book.dart';
 import 'package:flutter/material.dart';
 
@@ -70,7 +71,7 @@ class BooksConfiguration extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                // Delete book action
+                Navigator.push(context, MaterialPageRoute(builder: (context) => DeleteBook(),));
               },
               icon: Icon(Icons.delete, size: 24),
               label: Text(
