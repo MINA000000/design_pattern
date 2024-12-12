@@ -1,3 +1,6 @@
+import 'package:design_pattern/admin_package/main_page.dart';
+import 'package:design_pattern/admin_package/transactions_configurations/transactions_configuration.dart';
+import 'package:design_pattern/home_page.dart';
 import 'package:design_pattern/home_screen.dart';
 import 'package:design_pattern/login_singup/first_screen.dart';
 import 'package:design_pattern/login_singup/sign_in.dart';
@@ -25,7 +28,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: SignIn(),
+      home: MainAdminPage(),
     );
   }
 }
