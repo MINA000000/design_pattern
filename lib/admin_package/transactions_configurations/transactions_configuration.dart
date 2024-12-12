@@ -1,6 +1,6 @@
-import 'package:design_pattern/admin_package/items/transaction_item.dart';
-import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
+import 'transaction_factory.dart';  // Import the factory
+import '../../single_data_base.dart';
 
 class TransactionsConfiguration extends StatefulWidget {
   @override
@@ -16,14 +16,12 @@ class _TransactionsConfigurationState extends State<TransactionsConfiguration> {
     transactionsFuture = fetchData();  // Initialize the future to load the transactions
   }
 
-  // Function to fetch data from the database
   Future<List<Map>> fetchData() async {
     String sql = "SELECT * FROM transactions WHERE id_status=2";
     List<Map> data = await Database.database.readData(sql);
     return data;
   }
 
-  // Function to refresh the data by calling fetchData again
   void refreshTransactions() {
     setState(() {
       transactionsFuture = fetchData(); // Refresh the future with updated data
@@ -50,10 +48,8 @@ class _TransactionsConfigurationState extends State<TransactionsConfiguration> {
             return ListView.builder(
               itemCount: mydata.length,
               itemBuilder: (context, index) {
-                return TransactionItem(
-                  transaction: mydata[index],
-                  onMessageChanged: refreshTransactions, // Trigger refresh when something changes
-                );
+                // Use the factory to create the transaction item
+                return TransactionFactory.createTransactionItem(mydata[index], refreshTransactions);
               },
             );
           } else {
