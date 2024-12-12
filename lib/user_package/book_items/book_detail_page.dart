@@ -80,7 +80,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
               width: 200,
               height: 50,
               child: ElevatedButton(
-                onPressed: () async {
+                onPressed:(buttonName=="Updated"||buttonName=="Added")? null: () async {
                   // Check if the book already exists in the cart
                   List<Map> response = await Database.database.readData("SELECT * FROM 'cart' WHERE id_book = ${widget.book.id_book} AND id_customer = ${widget.id_customer}");
                   if (response.isNotEmpty) {
@@ -95,7 +95,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                     int updateRes = await Database.database.updateData(updateSql);
                     if (updateRes >= 1) {
                       setState(() {
-                        buttonName = "Updated in Cart";
+                        buttonName = "Updated";
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Book quantity updated in cart")),
@@ -110,7 +110,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                     int insertRes = await Database.database.insertData(insertSql);
                     if (insertRes >= 1) {
                       setState(() {
-                        buttonName = "Added to Cart";
+                        buttonName = "Added";
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Book added to cart")),
