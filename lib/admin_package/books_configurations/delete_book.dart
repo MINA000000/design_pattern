@@ -43,7 +43,7 @@ class _DeleteBookState extends State<DeleteBook> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DeleteBookItem(bookItem: books[index],),
+                      builder: (context) => DeleteBookItem(bookItem: books[index], onMessageChanged: updateMessage,),
                     ),
                   );
                 },

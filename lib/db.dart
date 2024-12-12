@@ -12,7 +12,7 @@ class Db {
   initialDb() async {
     String databasepath = await getDatabasesPath();
     String path = join(databasepath,'mina.db');
-    Database mydb = await openDatabase(path,onCreate: _onCreate,version: 9,onUpgrade: _onUpgrade);
+    Database mydb = await openDatabase(path,onCreate: _onCreate,version: 10,onUpgrade: _onUpgrade);
     return mydb;
   }
   _onUpgrade(Database db, int oldVersion, int newVersion) async {

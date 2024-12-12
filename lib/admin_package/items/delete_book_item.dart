@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 class DeleteBookItem extends StatefulWidget {
   Map bookItem;// Assuming the book ID will be passed to this widget
-
-  DeleteBookItem({required this.bookItem});
+  final Function() onMessageChanged;
+  DeleteBookItem({required this.bookItem,required this.onMessageChanged});
 
   @override
   _DeleteBookItemState createState() => _DeleteBookItemState();
@@ -31,6 +31,7 @@ class _DeleteBookItemState extends State<DeleteBookItem> {
       ''');
 
       if (result > 0) {
+        widget.onMessageChanged();
         setState(() {
           statusMessage = "Book deleted successfully!";
         });
