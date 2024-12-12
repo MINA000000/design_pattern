@@ -1,7 +1,6 @@
 import 'package:design_pattern/user_package/book_items/book.dart';
 import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
-
 import '../book_items/book_detail_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,9 +24,20 @@ class _HomePageState extends State<HomePage> {
   Future<List<Book>> fetchBooks() async {
     try {
       List<Map> response = await Database.database.readData("SELECT * FROM 'books'");
-      return response.map((e) {
-        return Book(price: e['price'], title: e['title'], author: e['author'], category_id: e['id_cat'], quantity: e['quantity'], cover_URL: "assets/images/${e['cover_URL']}", edition: e['edition'], id_book: e['id_book']);
-      }).toList();
+      List<Book> ans = [];
+      for (int i = 0; i < response.length; i++) {
+        ans.add(Book(
+          price: response[i]['price'],
+          title: response[i]['title'],
+          author: response[i]['author'],
+          category_id: response[i]['id_cat'],
+          quantity: response[i]['quantity'],
+          cover_URL: "assets/images/${response[i]['cover_URL']}",
+          edition: response[i]['edition'],
+          id_book: response[i]['id_book'],
+        ));
+      }
+      return ans;
     } catch (e) {
       throw Exception("Failed to fetch books: $e");
     }
@@ -63,10 +73,16 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
+                    // Clone the selected book before passing it to the BookDetailPage
+                    Book clonedBook = books[index].clone();
+                    // Now pass the cloned book to the detail page
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => BookDetailPage(book: books[index], id_customer: widget.id_customer,),
+                        builder: (context) => BookDetailPage(
+                          book: clonedBook,
+                          id_customer: widget.id_customer,
+                        ),
                       ),
                     );
                   },
@@ -100,5 +116,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-

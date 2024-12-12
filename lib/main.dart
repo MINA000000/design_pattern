@@ -7,7 +7,6 @@ import 'db.dart';
 
 void main() {
   // Initialize database factory for Linux
-  Db mydb = Db();
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
   runApp(
@@ -15,7 +14,6 @@ void main() {
   );
 }
 class MyApp extends StatelessWidget {
-  Db mydb = Db();
 
   @override
   Widget build(BuildContext context) {
