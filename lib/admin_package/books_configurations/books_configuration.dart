@@ -1,3 +1,4 @@
+import 'package:design_pattern/admin_package/books_configurations/add_book.dart';
 import 'package:design_pattern/admin_package/books_configurations/delete_book.dart';
 import 'package:design_pattern/admin_package/books_configurations/edit_book.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,7 @@ class BooksConfiguration extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                // Add book action
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AddBook(),));
               },
               icon: Icon(Icons.add, size: 24,color: Colors.white,),
               label: Text(
