@@ -15,7 +15,7 @@ class _MainAdminPageState extends State<MainAdminPage> {
       TransactionsConfiguration(),
      ConfirmedTransactions(),
        BooksConfiguration(),
-       CategoriesConfiguration()
+     CategoriesPage()
    ];
 
   @override
