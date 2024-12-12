@@ -5,7 +5,7 @@ import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'book.dart';
+import '../book_items/book.dart';
 import 'cart_provider.dart';
 import 'edit_cart_item.dart';
 

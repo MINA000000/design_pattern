@@ -1,17 +1,18 @@
-import 'package:design_pattern/cart_page.dart';
-import 'package:design_pattern/home_page.dart';
+import 'package:design_pattern/user_package/cart_package/cart_page.dart';
+import 'package:design_pattern/user_package/cart_package1/cart_main_page.dart';
+import 'package:design_pattern/user_package/home_package/home_page.dart';
 import 'package:design_pattern/profile/profile_page.dart';
-import 'package:design_pattern/search_page.dart';
+import 'package:design_pattern/user_package/search_package/search_page.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatefulWidget {
+class UserMainPage extends StatefulWidget {
   final int id_customer;
-  HomeScreen({required this.id_customer});
+  UserMainPage({required this.id_customer});
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<UserMainPage> createState() => _UserMainPageState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _UserMainPageState extends State<UserMainPage> {
   int _currentIndex = 0;
   late List<Widget> _pages;
 
@@ -23,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
       HomePage(id_customer: widget.id_customer),
       SearchPage(id_Customer: widget.id_customer,),
       ProfilePage(customer_id: widget.id_customer,),
-      CartPage( customer_id: 1,),
+      CartMainPage(userId: widget.id_customer,),
     ];
   }
 

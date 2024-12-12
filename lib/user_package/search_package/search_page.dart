@@ -1,8 +1,8 @@
 import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
 
-import 'book.dart';
-import 'book_detail_page.dart';
+import '../book_items/book.dart';
+import '../book_items/book_detail_page.dart';
 
 class SearchPage extends StatefulWidget {
   // const SearchPage({super.key});

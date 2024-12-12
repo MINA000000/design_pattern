@@ -9,7 +9,7 @@ class ConfirmedTransactionItem extends StatelessWidget {
   Future<List<Map>> fetchData() async {
     String sql = "SELECT * FROM books WHERE id_book=${transaction['id_book']}";
     List<Map> data = await Database.database.readData(sql);
-    print(data);
+    // print(data);
     return data;
   }
 

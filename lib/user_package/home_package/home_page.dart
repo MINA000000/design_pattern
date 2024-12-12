@@ -1,8 +1,8 @@
-import 'package:design_pattern/book.dart';
+import 'package:design_pattern/user_package/book_items/book.dart';
 import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
 
-import 'book_detail_page.dart';
+import '../book_items/book_detail_page.dart';
 
 class HomePage extends StatefulWidget {
   final int id_customer;

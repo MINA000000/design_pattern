@@ -9,10 +9,6 @@ class ConfirmedTransactions extends StatefulWidget {
 }
 
 class _ConfirmedTransactionsState extends State<ConfirmedTransactions> {
-  void updateMessage() {
-    setState(() {
-    });
-  }
   Future<List<Map>> fetchData() async {
     String sql = "SELECT * FROM transactions WHERE id_status=1";
     List<Map> data = await Database.database.readData(sql);

@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
-
 import '../../single_data_base.dart';
 
 class TransactionItem extends StatelessWidget {
   Map transaction;
-  final Function() onMessageChanged;
-  TransactionItem({required this.transaction,required this.onMessageChanged});
+  Function() onMessageChanged;
+
+  TransactionItem({required this.transaction, required this.onMessageChanged});
 
   Future<List<Map>> fetchData() async {
     String sql = "SELECT * FROM books WHERE id_book=${transaction['id_book']}";
     List<Map> data = await Database.database.readData(sql);
-    print(data);
     return data;
   }
 
   double calcTotalPrice(double priceOfOneBook) {
-    double total = transaction['quantity'] * priceOfOneBook;
-    return total;
+    return transaction['quantity'] * priceOfOneBook;
   }
 
   @override
@@ -53,73 +51,139 @@ class TransactionItem extends StatelessWidget {
                     child: Text(mydata['title']),
                   ),
                   Text(
-                    "total : ${calcTotalPrice(mydata['price'])}",
-                    style: TextStyle(
-                      color: Colors.purple
-                    ),
+                    "Total: ${calcTotalPrice(mydata['price'])}",
+                    style: TextStyle(color: Colors.purple),
                   ),
                   Row(
                     children: [
+                      // Cancel Button
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red),
+                            backgroundColor: Colors.red,
+                          ),
                           onPressed: () async {
+                            // SQL query to delete the transaction
                             String sql = '''
                             DELETE FROM transactions
-                            WHERE id_customer = ${transaction['id_customer']} AND id_book = ${transaction['id_book']};
+                            WHERE ROWID = (
+                              SELECT ROWID
+                              FROM transactions
+                              WHERE id_customer = ${transaction['id_customer']}
+                                AND id_book = ${transaction['id_book']}
+                                AND quantity = ${transaction['quantity']}
+                                AND id_status = 2
+                              LIMIT 1
+                            )
                             ''';
-                            int res = await  Database.database.deleteData(sql);
-                            print(res);
-                            if(res>=1)
-                            {
-                                onMessageChanged();
+                            print("Running DELETE SQL: $sql");
+
+                            // Execute delete operation
+                            int res = await Database.database.deleteData(sql);
+                            print("Delete Result: $res");
+
+                            if (res >= 1) {
+                              // After deleting the transaction, update the book quantity
+                              String updateBookSql = '''
+                              UPDATE books
+                              SET quantity = quantity + ${transaction['quantity']}
+                              WHERE id_book = ${transaction['id_book']}
+                              ''';
+                              int updateRes = await Database.database
+                                  .updateData(updateBookSql);
+                              print("Update Book Quantity Result: $updateRes");
+
+                              if (updateRes >= 1) {
+                                // Successfully updated the book quantity
+                                onMessageChanged(); // Callback to refresh the UI or data
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          "Transaction canceled and book quantity updated")),
+                                );
+                              } else {
+                                // Handle error in updating book quantity
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          "Failed to update book quantity")),
+                                );
+                              }
+                            } else {
+                              // Handle error in deleting transaction
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content:
+                                        Text("Failed to cancel transaction")),
+                              );
                             }
                           },
                           child: Text(
                             "Cancel",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: Colors.amber),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: Colors.amber,
+                            ),
                           ),
                         ),
                       ),
+                      // Confirm Button
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.deepPurple),
+                            backgroundColor: Colors.deepPurple,
+                          ),
                           onPressed: () async {
                             String sql = '''
                             UPDATE transactions
                             SET id_status = 1
-                            WHERE id_customer = ${transaction['id_customer']} AND id_book = ${transaction['id_book']};
+                            WHERE ROWID = (
+                              SELECT ROWID
+                              FROM transactions
+                              WHERE id_customer = ${transaction['id_customer']}
+                                AND id_book = ${transaction['id_book']}
+                                AND quantity = ${transaction['quantity']}
+                                AND id_status = 2
+                              LIMIT 1
+                            )
                             ''';
-                            int res = await  Database.database.updateData(sql);
-                            print(res);
-                            if(res>=1)
-                              {
-                               onMessageChanged();
-                              }
+                            print("Running UPDATE SQL: $sql");
+                            int res = await Database.database.updateData(sql);
+                            print("Update Result: $res");
+                            if (res >= 1) {
+                              onMessageChanged(); // Callback to refresh the UI or data
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(
+                                        "Transaction confirmed successfully")),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content:
+                                        Text("Failed to confirm transaction")),
+                              );
+                            }
                           },
                           child: Text(
                             "Confirm",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: Colors.amber),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: Colors.amber,
+                            ),
                           ),
                         ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
           );
-          ;
         } else {
           return Text('No data available');
         }

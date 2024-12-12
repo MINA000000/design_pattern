@@ -1,4 +1,4 @@
-import 'package:design_pattern/home_screen.dart';
+import 'package:design_pattern/user_package/user_main_page.dart';
 import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
 
@@ -80,7 +80,7 @@ class _SignUpState extends State<SignUp> {
                     if (response >= 1) {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (context) => HomeScreen(id_customer: response)),
+                        MaterialPageRoute(builder: (context) => UserMainPage(id_customer: response)),
                             (Route<dynamic> route) => false, // This removes all previous routes
                       );
                       print("Sign Up successfully");

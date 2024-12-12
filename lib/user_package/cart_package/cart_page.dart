@@ -1,8 +1,8 @@
-import 'package:design_pattern/book.dart';
-import 'package:design_pattern/cart_provider.dart';
-import 'package:design_pattern/edit_cart_item.dart';
+import 'package:design_pattern/user_package/book_items/book.dart';
+import 'package:design_pattern/user_package/cart_package/cart_provider.dart';
+import 'package:design_pattern/user_package/cart_package/edit_cart_item.dart';
 import 'package:design_pattern/single_data_base.dart';
-import 'package:design_pattern/transaction_item.dart';
+import 'package:design_pattern/user_package/cart_package/transaction_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

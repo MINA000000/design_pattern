@@ -1,5 +1,5 @@
 import 'package:design_pattern/admin_package/transactions_configurations/transactions_configuration.dart';
-import 'package:design_pattern/home_screen.dart';
+import 'package:design_pattern/user_package/user_main_page.dart';
 import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
 
@@ -143,7 +143,7 @@ class _SignInState extends State<SignIn> {
                     // The email and password exist in the database
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (context) => HomeScreen(id_customer: result[0]['id_customer'])),
+                      MaterialPageRoute(builder: (context) => UserMainPage(id_customer: result[0]['id_customer'])),
                           (Route<dynamic> route) => false, // This removes all previous routes
                     );
                     //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen(customer: result[0])),);
