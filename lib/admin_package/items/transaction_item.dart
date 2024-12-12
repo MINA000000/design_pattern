@@ -77,7 +77,7 @@ class TransactionItem extends StatelessWidget {
                               LIMIT 1
                             )
                             ''';
-                            print("Running DELETE SQL: $sql");
+                            // print("Running DELETE SQL: $sql");
 
                             // Execute delete operation
                             int res = await Database.database.deleteData(sql);
@@ -150,7 +150,7 @@ class TransactionItem extends StatelessWidget {
                               LIMIT 1
                             )
                             ''';
-                            print("Running UPDATE SQL: $sql");
+                            // print("Running UPDATE SQL: $sql");
                             int res = await Database.database.updateData(sql);
                             print("Update Result: $res");
                             if (res >= 1) {

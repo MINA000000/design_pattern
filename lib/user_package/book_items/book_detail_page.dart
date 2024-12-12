@@ -15,6 +15,7 @@ class BookDetailPage extends StatefulWidget {
 class _BookDetailPageState extends State<BookDetailPage> {
   int _selectedQuantity = 1; // Default selected quantity is 1
   String buttonName = "Add To Cart";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,28 +81,42 @@ class _BookDetailPageState extends State<BookDetailPage> {
               height: 50,
               child: ElevatedButton(
                 onPressed: () async {
-                  List<Map> response = await Database.database.readData("SELECT * FROM 'cart'");
-                  bool exist = false;
-                  for(int i=0;i<response.length;i++)
-                    {
-                      if(response[i]['id_book']==widget.book.id_book&&response[i]['id_customer']==widget.id_customer)
-                        {
-                          exist = true;
-                          break;
-                        }
+                  // Check if the book already exists in the cart
+                  List<Map> response = await Database.database.readData("SELECT * FROM 'cart' WHERE id_book = ${widget.book.id_book} AND id_customer = ${widget.id_customer}");
+                  if (response.isNotEmpty) {
+                    // If the book exists, update the quantity
+                    int newQuantity = response[0]['quantity'] + _selectedQuantity;
+                    String updateSql = '''
+                    UPDATE cart
+                    SET quantity = $newQuantity
+                    WHERE id_customer = ${widget.id_customer}
+                    AND id_book = ${widget.book.id_book}
+                    ''';
+                    int updateRes = await Database.database.updateData(updateSql);
+                    if (updateRes >= 1) {
+                      setState(() {
+                        buttonName = "Updated in Cart";
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Book quantity updated in cart")),
+                      );
                     }
-                  if(exist==true)
-                    {
-                        setState(() {
-                          buttonName = "Already exist";
-                        });
+                  } else {
+                    // If the book doesn't exist in the cart, insert it
+                    String insertSql = '''
+                    INSERT INTO cart (id_customer, id_book, quantity)
+                    VALUES (${widget.id_customer}, ${widget.book.id_book}, $_selectedQuantity);
+                    ''';
+                    int insertRes = await Database.database.insertData(insertSql);
+                    if (insertRes >= 1) {
+                      setState(() {
+                        buttonName = "Added to Cart";
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Book added to cart")),
+                      );
                     }
-                  else 
-                    {
-                      String sql ="INSERT INTO cart (id_customer, id_book, quantity) VALUES (${widget.id_customer}, ${widget.book.id_book}, $_selectedQuantity);";
-                      int res = await Database.database.insertData(sql);
-                      print(res);
-                    }
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
