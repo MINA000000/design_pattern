@@ -38,7 +38,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Categories")),
+      appBar: AppBar(
+        title: Text("Categories Configuration"),
+        centerTitle: true,
+        backgroundColor: Colors.blueGrey,
+      ),
       body: FutureBuilder(
         future: fetchCategories(),
         builder: (context, snapshot) {

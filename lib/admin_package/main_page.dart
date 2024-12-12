@@ -21,11 +21,7 @@ class _MainAdminPageState extends State<MainAdminPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Books Configuration"),
-        centerTitle: true,
-        backgroundColor: Colors.blueGrey,
-      ),
+      
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

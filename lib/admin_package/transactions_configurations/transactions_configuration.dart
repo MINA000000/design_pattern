@@ -22,6 +22,11 @@ class _TransactionsConfigurationState extends State<TransactionsConfiguration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          title: Text("Transactions Configuration"),
+          centerTitle: true,
+          backgroundColor: Colors.blueGrey,
+        ),
       body:FutureBuilder(future: fetchData(), builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator(); // Loading state

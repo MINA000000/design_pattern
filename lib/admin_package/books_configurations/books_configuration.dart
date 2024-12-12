@@ -9,7 +9,11 @@ class BooksConfiguration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
+      appBar: AppBar(
+        title: Text("Books Configuration"),
+        centerTitle: true,
+        backgroundColor: Colors.blueGrey,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

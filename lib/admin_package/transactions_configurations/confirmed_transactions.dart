@@ -23,6 +23,11 @@ class _ConfirmedTransactionsState extends State<ConfirmedTransactions> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          title: Text("Confirmed Transactions"),
+          centerTitle: true,
+          backgroundColor: Colors.blueGrey,
+        ),
         body:FutureBuilder(future: fetchData(), builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator(); // Loading state
