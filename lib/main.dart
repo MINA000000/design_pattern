@@ -1,4 +1,5 @@
 import 'package:design_pattern/admin_package/main_page.dart';
+import 'package:design_pattern/login_singup/first_screen.dart';
 import 'package:design_pattern/user_package/user_main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MainAdminPage(),
+      home: FirstScreen(),
     );
   }
 }

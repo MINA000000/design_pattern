@@ -21,12 +21,20 @@ class _BookDetailPageState extends State<BookDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.book.title),
+        centerTitle: true,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(widget.book.cover_URL),
+            // Image.asset(widget.book.cover_URL),
+            Image.asset(
+              widget.book.cover_URL,
+              width: 183, // Set the fixed width
+              height: 275, // Set the fixed height
+              fit: BoxFit.cover, // Adjust to fit the box while maintaining the aspect ratio
+            ),
+
             const SizedBox(height: 20),
             Text(
               widget.book.title,

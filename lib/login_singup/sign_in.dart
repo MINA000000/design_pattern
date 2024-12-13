@@ -1,3 +1,4 @@
+import 'package:design_pattern/admin_package/main_page.dart';
 import 'package:design_pattern/admin_package/transactions_configurations/transactions_configuration.dart';
 import 'package:design_pattern/user_package/user_main_page.dart';
 import 'package:design_pattern/single_data_base.dart';
@@ -121,7 +122,7 @@ class _SignInState extends State<SignIn> {
                         {
                           Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (context) => TransactionsConfiguration()),
+                            MaterialPageRoute(builder: (context) => MainAdminPage()),
                                 (Route<dynamic> route) => false, // This removes all previous routes
                           );
                         }
