@@ -39,6 +39,7 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -158,7 +159,7 @@ class _SignInState extends State<SignIn> {
                   }
                 },
                 child: Text(
-                  "Login in",
+                  "Login",
                   style: TextStyle(
                       color: Colors.amber,
                       fontSize: 20,

@@ -14,39 +14,56 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   late Future<List<Book>> _booksFuture;
+  late Future<List<Map>> _categoriesFuture;
   String searchQuery = "";
   String selectedCategory = "All Categories";
   String selectedSortBy = "Price (Low to High)";
+  List<Map> categories = [];
 
   @override
   void initState() {
     super.initState();
-    _booksFuture = fetchBooks(); // Initialize the Future
+    _booksFuture = fetchBooks(); // Fetch books
+    _categoriesFuture = fetchCategories(); // Fetch categories
+    _categoriesFuture.then((fetchedCategories) {
+      setState(() {
+        categories = fetchedCategories;
+      });
+    });
   }
 
   Future<List<Book>> fetchBooks() async {
     try {
-      List<Map> response = await Database.database.readData("SELECT * FROM 'books'");
+      List<Map> response =
+      await Database.database.readData("SELECT * FROM 'books'");
       return response.map((e) {
         return Book(
-            price: e['price'],
-            title: e['title'],
-            author: e['author'],
-            category_id: e['id_cat'],
-            quantity: e['quantity'],
-            cover_URL: "assets/images/${e['cover_URL']}",
-            edition: e['edition'],
-            id_book: e['id_book']);
+          price: e['price'],
+          title: e['title'],
+          author: e['author'],
+          category_id: e['id_cat'],
+          quantity: e['quantity'],
+          cover_URL: "assets/images/${e['cover_URL']}",
+          edition: e['edition'],
+          id_book: e['id_book'],
+        );
       }).toList();
     } catch (e) {
       throw Exception("Failed to fetch books: $e");
     }
   }
 
+  Future<List<Map>> fetchCategories() async {
+    try {
+      return await Database.database.readData("SELECT * FROM 'categories'");
+    } catch (e) {
+      throw Exception("Failed to fetch categories: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: FutureBuilder<List<Book>>(
         future: _booksFuture,
         builder: (context, snapshot) {
@@ -58,6 +75,7 @@ class _SearchPageState extends State<SearchPage> {
             return Center(child: Text("No books found."));
           } else {
             final books = snapshot.data!;
+
             // Filter and search logic
             List<Book> filteredBooks = books
                 .where((book) =>
@@ -97,6 +115,7 @@ class _SearchPageState extends State<SearchPage> {
                   },
                   selectedCategory: selectedCategory,
                   selectedSortBy: selectedSortBy,
+                  categories: categories,
                 ),
                 SizedBox(height: 10),
                 Expanded(
@@ -154,12 +173,14 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
+
 class SearchElements extends StatelessWidget {
   final Function(String) onSearchChanged;
   final Function(String) onCategoryChanged;
   final Function(String) onSortChanged;
   final String selectedCategory;
   final String selectedSortBy;
+  final List<Map> categories;
 
   SearchElements({
     required this.onSearchChanged,
@@ -167,6 +188,7 @@ class SearchElements extends StatelessWidget {
     required this.onSortChanged,
     required this.selectedCategory,
     required this.selectedSortBy,
+    required this.categories,
   });
 
   @override
@@ -197,11 +219,14 @@ class SearchElements extends StatelessWidget {
             DropdownButton<String>(
               value: selectedCategory,
               items: [
-                DropdownMenuItem(value: "All Categories", child: Text("All Categories")),
-                DropdownMenuItem(value: "3", child: Text("Fiction")),
-                DropdownMenuItem(value: "2", child: Text("Fantasy")),
-                DropdownMenuItem(value: "1", child: Text("Science")),
-                // Add more categories as needed
+                DropdownMenuItem(
+                    value: "All Categories", child: Text("All Categories")),
+                ...categories.map(
+                      (category) => DropdownMenuItem(
+                    value: category['id_category'].toString(),
+                    child: Text(category['category_name']),
+                  ),
+                ),
               ],
               onChanged: (value) {
                 onCategoryChanged(value!);
@@ -211,8 +236,10 @@ class SearchElements extends StatelessWidget {
             DropdownButton<String>(
               value: selectedSortBy,
               items: [
-                DropdownMenuItem(value: "Price (Low to High)", child: Text("Price (Low to High)")),
-                DropdownMenuItem(value: "Price (High to Low)", child: Text("Price (High to Low)")),
+                DropdownMenuItem(
+                    value: "Price (Low to High)", child: Text("Price (Low to High)")),
+                DropdownMenuItem(
+                    value: "Price (High to Low)", child: Text("Price (High to Low)")),
               ],
               onChanged: (value) {
                 onSortChanged(value!);

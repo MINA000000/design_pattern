@@ -1,6 +1,6 @@
 import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
-
+import 'add_comment_page.dart'; // Import the AddCommentPage class
 
 class ConfirmedItemsPage extends StatelessWidget {
   final int userId;
@@ -48,18 +48,52 @@ class ConfirmedItemsPage extends StatelessWidget {
                       children: [
                         Text(
                           item['title'],
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         Text("Author: ${item['author']}"),
                         Text("Price: \$${item['price']}"),
                         Text("Quantity: ${item['quantity']}"),
                         SizedBox(height: 10),
-                        Text(
-                          "Status: Confirmed",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Status: Confirmed",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue, // Button background color
+                                foregroundColor: Colors.white, // Text color
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8), // Rounded edges
+                                ),
+                                shadowColor: Colors.grey, // Shadow color
+                                elevation: 5, // Button elevation
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddCommentPage(
+                                      userId: userId,
+                                      bookId: item['id_book'],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                "Add Comment",
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                              ),
+                            ),
+
+                          ],
                         ),
                       ],
                     ),
