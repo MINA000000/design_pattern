@@ -9,36 +9,53 @@ class AddBook extends StatefulWidget {
 }
 
 class _AddBookState extends State<AddBook> {
-  // Controllers for each text field
   final TextEditingController titleController = TextEditingController();
   final TextEditingController authorController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
   final TextEditingController coverUrlController = TextEditingController();
   final TextEditingController editionController = TextEditingController();
-  final TextEditingController categoryController = TextEditingController(); // Category as a string for simplicity
 
   bool isLoading = false;
   String statusMessage = "";
+  Map<String, int> categories = {}; // Map to store category names and their IDs
+  String? selectedCategory; // To store the currently selected category name
 
-  // Function to insert a new book into the database
+  @override
+  void initState() {
+    super.initState();
+    fetchCategories(); // Load categories when the widget is initialized
+  }
+
+  Future<void> fetchCategories() async {
+    try {
+      // Fetch categories from the database
+      List<Map> res = await Database.database.readData("SELECT id_category, category_name FROM categories");
+      setState(() {
+        categories = {for (var row in res) row['category_name']: row['id_category']};
+      });
+    } catch (e) {
+      setState(() {
+        statusMessage = "Failed to load categories: $e";
+      });
+    }
+  }
+
   Future<void> addBookToDatabase() async {
     setState(() {
       isLoading = true;
       statusMessage = "";
     });
 
-    // Get input values
     String title = titleController.text;
     String author = authorController.text;
     double price = double.tryParse(priceController.text) ?? 0.0;
     int quantity = int.tryParse(quantityController.text) ?? 0;
     String coverUrl = coverUrlController.text;
     String edition = editionController.text;
-    int categoryId = int.tryParse(categoryController.text) ?? 0; // Assuming category ID is entered as integer
+    int? categoryId = categories[selectedCategory]; // Get the selected category's ID
 
-    // Validate inputs (basic validation)
-    if (title.isEmpty || author.isEmpty || price <= 0 || quantity <= 0 || coverUrl.isEmpty || edition.isEmpty || categoryId <= 0) {
+    if (title.isEmpty || author.isEmpty || price <= 0 || quantity <= 0 || coverUrl.isEmpty || edition.isEmpty || categoryId == null) {
       setState(() {
         statusMessage = "Please fill all fields with valid data!";
         isLoading = false;
@@ -46,27 +63,13 @@ class _AddBookState extends State<AddBook> {
       return;
     }
 
-    // Open your database
-
-    // Insert new book into the 'books' table
     int result = await Database.database.insertData('''
-  INSERT INTO books (price, title, author, id_cat, quantity, cover_URL, edition) 
-  VALUES ($price, '$title', '$author', $categoryId, $quantity, '$coverUrl', '$edition')
-  ''');
-
-
-    // Provide feedback to the user
-    if (result > 0) {
-      setState(() {
-        statusMessage = "Book added successfully!";
-      });
-    } else {
-      setState(() {
-        statusMessage = "Failed to add the book.";
-      });
-    }
+      INSERT INTO books (price, title, author, id_cat, quantity, cover_URL, edition) 
+      VALUES ($price, '$title', '$author', $categoryId, $quantity, '$coverUrl', '$edition')
+    ''');
 
     setState(() {
+      statusMessage = result > 0 ? "Book added successfully!" : "Failed to add the book.";
       isLoading = false;
     });
   }
@@ -126,17 +129,34 @@ class _AddBookState extends State<AddBook> {
               decoration: InputDecoration(labelText: 'Edition'),
             ),
             SizedBox(height: 10),
-            TextField(
-              controller: categoryController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'Category ID'),
+            DropdownButtonFormField<String>(
+              value: selectedCategory,
+              hint: Text("Select Category"),
+              items: categories.keys.map((categoryName) {
+                return DropdownMenuItem(
+                  value: categoryName,
+                  child: Text(categoryName),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedCategory = value;
+                });
+              },
+              decoration: InputDecoration(
+                labelText: "Category",
+                border: OutlineInputBorder(),
+              ),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: isLoading ? null : addBookToDatabase,
               child: isLoading
                   ? CircularProgressIndicator(color: Colors.white)
-                  : Text("Add Book",style: TextStyle(color: Colors.black),),
+                  : Text(
+                "Add Book",
+                style: TextStyle(color: Colors.black),
+              ),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 backgroundColor: Colors.deepPurple,

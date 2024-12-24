@@ -1,3 +1,4 @@
+import 'package:design_pattern/admin_package/InventoryAndStatisticsMonitoring/mainInventory.dart';
 import 'package:design_pattern/admin_package/books_configurations/books_configuration.dart';
 import 'package:design_pattern/admin_package/categories_configurations/categories_configuration.dart';
 import 'package:design_pattern/admin_package/transactions_configurations/confirmed_transactions.dart';
@@ -12,9 +13,10 @@ class MainAdminPage extends StatefulWidget {
 class _MainAdminPageState extends State<MainAdminPage> {
   int _currentIndex = 2;
    List<Widget> _pages=[
-      TransactionsConfiguration(),
+     TransactionsConfiguration(),
      ConfirmedTransactions(),
-       BooksConfiguration(),
+     Maininventory(),
+     BooksConfiguration(),
      CategoriesPage()
    ];
 
@@ -40,9 +42,14 @@ class _MainAdminPageState extends State<MainAdminPage> {
             label: 'confirmed transactions',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.inventory),
+            label: 'Inventory',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.book),
             label: 'Books',
           ),
+
           BottomNavigationBarItem(
             icon: Icon(Icons.category),
             label: 'Cagegories',
