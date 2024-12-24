@@ -11,7 +11,7 @@ class MainAdminPage extends StatefulWidget {
 }
 
 class _MainAdminPageState extends State<MainAdminPage> {
-  int _currentIndex = 2;
+  int _currentIndex = 0;
    List<Widget> _pages=[
      TransactionsConfiguration(),
      ConfirmedTransactions(),

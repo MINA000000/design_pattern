@@ -11,31 +11,80 @@ class Maininventory extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Inventory & Statistics"),
         centerTitle: true,
+        backgroundColor: Colors.teal, // Change the app bar color
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TopSoldBooksScreen()),
-                );
-              },
-              child: const Text("Top Sold Books"),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0), // Add padding around the content
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Title
+                const Text(
+                  "Welcome to Inventory & Statistics",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20), // Spacing
+                // Top Sold Books Button
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    leading: const Icon(Icons.book, color: Colors.teal),
+                    title: const Text(
+                      "Top Sold Books",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TopSoldBooksScreen()),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Popular Categories Button
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    leading: const Icon(Icons.category, color: Colors.teal),
+                    title: const Text(
+                      "Most Popular Categories",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PopularCategoriesScreen()),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Add decorative image or icon (optional)
+                const Icon(
+                  Icons.analytics_outlined,
+                  size: 100,
+                  color: Colors.teal,
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PopularCategoriesScreen()),
-                );
-              },
-              child: const Text("Most Popular Categories"),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -128,42 +177,71 @@ class TopSoldBooksScreen extends StatelessWidget {
     );
 
   }
-
   Future<List<Pair>> fetchTopSoldBooks() async {
-    // Access the database instance
+    DatabaseInterface database = ProxyDatabase();
 
-    // SQL query to get top-sold books
     String sql = '''
-  SELECT * FROM transactions WHERE id_status=1;
-  ''';
+      SELECT * FROM transactions WHERE id_status=1;
+    ''';
 
-// Execute the query and return the results
-    List<Map<String, dynamic>> response = await Database.database.readData(sql);
+    List<Map> response = await database.readData(sql);
     Map<int, int> cnt = {};
 
-// Iterate through the results and count occurrences of id_book
     for (int i = 0; i < response.length; i++) {
       int bookId = response[i]['id_book'];
-      cnt[bookId] = (cnt[bookId] ?? 0) + 1; // Increment count, initialize to 0 if null
+      cnt[bookId] = (cnt[bookId] ?? 0) + 1;
     }
+
     List<Pair> ans = [];
     for (var entry in cnt.entries) {
       int key = entry.key;
       int value = entry.value;
       sql = "SELECT title FROM books WHERE id_book=${key}";
-      List<Map> res = await Database.database.readData(sql);
+      List<Map> res = await database.readData(sql);
       if (res.isNotEmpty) {
         ans.add(Pair(res[0]['title'], value));
       }
     }
-    // cnt.forEach((key, value)async {
-    //   sql = "SELECT title FROM books WHERE id_book=${key}";
-    //   List<Map> res = await Database.database.readData(sql);
-    //   ans.add(Pair(res[0]['title'], value));
-    // });
+
     ans.sort((a, b) => b.value.compareTo(a.value));
     return ans;
   }
+
+//   Future<List<Pair>> fetchTopSoldBooks() async {
+//     // Access the database instance
+//
+//     // SQL query to get top-sold books
+//     String sql = '''
+//   SELECT * FROM transactions WHERE id_status=1;
+//   ''';
+//
+// // Execute the query and return the results
+//     List<Map<String, dynamic>> response = await Database.database.readData(sql);
+//     Map<int, int> cnt = {};
+//
+// // Iterate through the results and count occurrences of id_book
+//     for (int i = 0; i < response.length; i++) {
+//       int bookId = response[i]['id_book'];
+//       cnt[bookId] = (cnt[bookId] ?? 0) + 1; // Increment count, initialize to 0 if null
+//     }
+//     List<Pair> ans = [];
+//     for (var entry in cnt.entries) {
+//       int key = entry.key;
+//       int value = entry.value;
+//       sql = "SELECT title FROM books WHERE id_book=${key}";
+//       List<Map> res = await Database.database.readData(sql);
+//       if (res.isNotEmpty) {
+//         ans.add(Pair(res[0]['title'], value));
+//       }
+//     }
+//     // cnt.forEach((key, value)async {
+//     //   sql = "SELECT title FROM books WHERE id_book=${key}";
+//     //   List<Map> res = await Database.database.readData(sql);
+//     //   ans.add(Pair(res[0]['title'], value));
+//     // });
+//     ans.sort((a, b) => b.value.compareTo(a.value));
+//     return ans;
+//   }
 
 }
 class Pair {
@@ -260,46 +338,114 @@ class PopularCategoriesScreen extends StatelessWidget {
   }
 
   Future<List<Pair>> fetchPopularCategories() async {
+    // Initialize the proxy database
+    DatabaseInterface database = ProxyDatabase();
+
+    // Query to fetch all transactions with id_status = 1
     String sql = '''
-  SELECT * FROM transactions WHERE id_status=1;
+    SELECT * FROM transactions WHERE id_status = 1;
   ''';
 
-// Execute the query and return the results
-    List<Map<String, dynamic>> response = await Database.database.readData(sql);
-    Map<int, int> cnt = {};
-  print(response);
-// Iterate through the results and count occurrences of id_book
-    for (int i = 0; i < response.length; i++) {
-      int bookId = response[i]['id_book'];
-      cnt[bookId] = (cnt[bookId] ?? 0) + 1; // Increment count, initialize to 0 if null
+    // Execute the query using the proxy database
+    List<Map> response = await database.readData(sql);
+    Map<int, int> bookCounts = {};
+
+    // Print the raw response for debugging
+    print(response);
+
+    // Count occurrences of id_book
+    for (var entry in response) {
+      int bookId = entry['id_book'];
+      bookCounts[bookId] = (bookCounts[bookId] ?? 0) + 1;
     }
-    // print(cnt.length);
-    Map<int, int> cntCat = {};
-    for (var entry in cnt.entries) {
-      int key = entry.key;
-      int value = entry.value;
-      sql = "SELECT id_cat FROM books WHERE id_book=${key}";
-      List<Map> res = await Database.database.readData(sql);
-      if (res.isNotEmpty) {
-        cntCat[res[0]['id_cat']] = (cntCat[res[0]['id_cat']] ?? 0) + value;
+
+    // Map to hold the category counts
+    Map<int, int> categoryCounts = {};
+
+    // Calculate category counts based on book IDs
+    for (var entry in bookCounts.entries) {
+      int bookId = entry.key;
+      int count = entry.value;
+
+      // Query to fetch the category of a book
+      sql = "SELECT id_cat FROM books WHERE id_book = $bookId";
+      List<Map> bookResponse = await database.readData(sql);
+
+      if (bookResponse.isNotEmpty) {
+        int categoryId = bookResponse[0]['id_cat'];
+        categoryCounts[categoryId] = (categoryCounts[categoryId] ?? 0) + count;
       }
     }
-    List<Pair> ans = [];
-    for (var entry in cntCat.entries) {
-      int key = entry.key;
-      int value = entry.value;
-      sql = "SELECT category_name FROM categories WHERE id_category = ${key}";
-      List<Map> res = await Database.database.readData(sql);
-      if (res.isNotEmpty) {
-        ans.add(Pair(res[0]['category_name'], value));
+
+    // List to store the final results
+    List<Pair> result = [];
+
+    // Fetch category names and populate the result
+    for (var entry in categoryCounts.entries) {
+      int categoryId = entry.key;
+      int count = entry.value;
+
+      // Query to fetch the category name
+      sql = "SELECT category_name FROM categories WHERE id_category = $categoryId";
+      List<Map> categoryResponse = await database.readData(sql);
+
+      if (categoryResponse.isNotEmpty) {
+        String categoryName = categoryResponse[0]['category_name'];
+        result.add(Pair(categoryName, count));
       }
     }
-    // cntCat.forEach((key,value)async{
-    //   sql = "SELECT category_name FROM categories WHERE id_category = ${key}";
-    //   List<Map> res = await Database.database.readData(sql);
-    //   ans.add(Pair(res[0]['category_name'], value));
-    // });
-    ans.sort((a, b) => b.value.compareTo(a.value));
-    return ans;
+
+    // Sort the result by count in descending order
+    result.sort((a, b) => b.value.compareTo(a.value));
+
+    return result;
+  }
+
+}
+abstract class DatabaseInterface {
+  Future<List<Map>> readData(String sql);
+}
+
+class RealDatabase implements DatabaseInterface {
+  static final RealDatabase _instance = RealDatabase._internal();
+  RealDatabase._internal();
+
+  static RealDatabase get database => _instance;
+
+  @override
+  Future<List<Map>> readData(String sql) async {
+    try
+    {
+      List<Map> res = await Database.database.readData(sql);
+      if(res.isNotEmpty)
+        return res;
+      else
+        return [];
+    }
+    catch(e)
+    {
+      return [];
+    }
+  }
+}
+class ProxyDatabase implements DatabaseInterface {
+  final RealDatabase _realDatabase = RealDatabase.database;
+   static final Map<String, List<Map>> _cache = {};
+
+  @override
+  Future<List<Map>> readData(String sql) async {
+    // Check if the query result is in the cache
+    if (_cache.containsKey(sql)) {
+      print("Returning cached result for query: $sql");
+      return _cache[sql]!;
+    }
+
+    // If not in cache, fetch from the real database
+    print("Querying real database for: $sql");
+    List<Map> result = await _realDatabase.readData(sql);
+
+    // Store the result in cache
+    _cache[sql] = result;
+    return result;
   }
 }
