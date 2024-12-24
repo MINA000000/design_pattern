@@ -1,12 +1,12 @@
-import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
 import '../book_items/book.dart';
 import '../book_items/book_detail_page.dart';
+import 'package:design_pattern/single_data_base.dart';
 
 class SearchPage extends StatefulWidget {
-  int id_Customer;
+  final int id_Customer;
+
   SearchPage({required this.id_Customer});
-  get id_customer => id_Customer;
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -14,22 +14,53 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   late Future<List<Book>> _booksFuture;
+  late Future<List<Pair>> _topBooksFuture;
   late Future<List<Map>> _categoriesFuture;
   String searchQuery = "";
   String selectedCategory = "All Categories";
-  String selectedSortBy = "Price (Low to High)";
-  List<Map> categories = [];
+  String selectedSortBy = "None";
+  String selectedFilterBy = "None";
+
+  Future<List<Pair>> fetchTopSoldBooks() async {
+    String sql = '''
+    SELECT * FROM transactions WHERE id_status=1;
+    ''';
+    List<Map<String, dynamic>> response = await Database.database.readData(sql);
+    Map<int, int> cnt = {};
+    for (int i = 0; i < response.length; i++) {
+      int bookId = response[i]['id_book'];
+      cnt[bookId] = (cnt[bookId] ?? 0) + 1;
+    }
+    List<Pair> ans = [];
+    for (var entry in cnt.entries) {
+      int key = entry.key;
+      int value = entry.value;
+      sql = "SELECT title FROM books WHERE id_book=${key}";
+      List<Map> res = await Database.database.readData(sql);
+      if (res.isNotEmpty) {
+        ans.add(Pair(res[0]['title'], value));
+      }
+    }
+    ans.sort((a, b) => b.value.compareTo(a.value));
+    return ans;
+  }
 
   @override
   void initState() {
     super.initState();
-    _booksFuture = fetchBooks(); // Fetch books
-    _categoriesFuture = fetchCategories(); // Fetch categories
-    _categoriesFuture.then((fetchedCategories) {
-      setState(() {
-        categories = fetchedCategories;
-      });
-    });
+    _booksFuture = fetchBooks();
+    _categoriesFuture = fetchCategories();
+    _topBooksFuture = fetchTopSoldBooks();
+  }
+
+  Future<List<Map>> fetchCategories() async {
+    try {
+      List<Map> response =
+      await Database.database.readData("SELECT * FROM 'categories'");
+      return response;
+    } catch (e) {
+      throw Exception("Failed to fetch categories: $e");
+    }
   }
 
   Future<List<Book>> fetchBooks() async {
@@ -53,119 +84,141 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  Future<List<Map>> fetchCategories() async {
-    try {
-      return await Database.database.readData("SELECT * FROM 'categories'");
-    } catch (e) {
-      throw Exception("Failed to fetch categories: $e");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<Book>>(
-        future: _booksFuture,
+      body: FutureBuilder<List<Map>>(
+        future: _categoriesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text("No books found."));
+            return Center(child: Text("No categories found."));
           } else {
-            final books = snapshot.data!;
+            final categories = snapshot.data!;
 
-            // Filter and search logic
-            List<Book> filteredBooks = books
-                .where((book) =>
-            book.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                book.author.toLowerCase().contains(searchQuery.toLowerCase()))
-                .toList();
+            return FutureBuilder<List<Book>>(
+              future: _booksFuture,
+              builder: (context, bookSnapshot) {
+                if (bookSnapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (bookSnapshot.hasError) {
+                  return Center(child: Text('Error: ${bookSnapshot.error}'));
+                } else if (!bookSnapshot.hasData || bookSnapshot.data!.isEmpty) {
+                  return Center(child: Text("No books found."));
+                } else {
+                  final books = bookSnapshot.data!;
 
-            if (selectedCategory != "All Categories") {
-              filteredBooks = filteredBooks
-                  .where((book) => book.category_id.toString() == selectedCategory)
-                  .toList();
-            }
+                  List<Book> filteredBooks = books
+                      .where((book) =>
+                  book.title
+                      .toLowerCase()
+                      .contains(searchQuery.toLowerCase()) ||
+                      book.author
+                          .toLowerCase()
+                          .contains(searchQuery.toLowerCase()))
+                      .toList();
 
-            if (selectedSortBy == "Price (Low to High)") {
-              filteredBooks.sort((a, b) => a.price.compareTo(b.price));
-            } else if (selectedSortBy == "Price (High to Low)") {
-              filteredBooks.sort((a, b) => b.price.compareTo(a.price));
-            }
+                  if (selectedCategory != "All Categories") {
+                    filteredBooks = filteredBooks
+                        .where((book) =>
+                    book.category_id.toString() == selectedCategory)
+                        .toList();
+                  }
 
-            return Column(
-              children: [
-                SearchElements(
-                  onSearchChanged: (value) {
-                    setState(() {
-                      searchQuery = value;
-                    });
-                  },
-                  onCategoryChanged: (value) {
-                    setState(() {
-                      selectedCategory = value;
-                    });
-                  },
-                  onSortChanged: (value) {
-                    setState(() {
-                      selectedSortBy = value;
-                    });
-                  },
-                  selectedCategory: selectedCategory,
-                  selectedSortBy: selectedSortBy,
-                  categories: categories,
-                ),
-                SizedBox(height: 10),
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 0.7,
-                    ),
-                    itemCount: filteredBooks.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BookDetailPage(
-                                book: filteredBooks[index],
-                                id_customer: widget.id_customer,
-                              ),
-                            ),
-                          );
+                  if (selectedSortBy == "Price (Low to High)") {
+                    filteredBooks.sort((a, b) => a.price.compareTo(b.price));
+                  } else if (selectedSortBy == "Price (High to Low)") {
+                    filteredBooks.sort((a, b) => b.price.compareTo(a.price));
+                  }
+
+                  return Column(
+                    children: [
+                      SearchElements(
+                        onSearchChanged: (value) {
+                          setState(() {
+                            searchQuery = value;
+                          });
                         },
-                        child: Card(
-                          elevation: 4,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: Image.asset(
-                                  filteredBooks[index].cover_URL,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  filteredBooks[index].title,
-                                  style: TextStyle(fontSize: 16),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ],
+                        onCategoryChanged: (value) {
+                          setState(() {
+                            selectedCategory = value;
+                          });
+                        },
+                        onSortChanged: (value) {
+                          setState(() {
+                            selectedSortBy = value;
+                          });
+                        },
+                        onFilterChanged: (value) {
+                          setState(() {
+                            selectedFilterBy = value;
+                            if (value == "Most Sold Books") {
+                              _booksFuture = fetchBooksFromPairs(_topBooksFuture);
+                            } else {
+                              _booksFuture = fetchBooks();
+                            }
+                          });
+                        },
+                        categories: categories,
+                        selectedCategory: selectedCategory,
+                        selectedSortBy: selectedSortBy,
+                        selectedFilterBy: selectedFilterBy,
+                      ),
+                      SizedBox(height: 10),
+                      Expanded(
+                        child: GridView.builder(
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 0.7,
                           ),
+                          itemCount: filteredBooks.length,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BookDetailPage(
+                                      book: filteredBooks[index],
+                                      id_customer: widget.id_Customer,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Card(
+                                elevation: 4,
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      child: Image.asset(
+                                        filteredBooks[index].cover_URL,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        filteredBooks[index].title,
+                                        style: TextStyle(fontSize: 16),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+                      ),
+                    ],
+                  );
+                }
+              },
             );
           }
         },
@@ -178,17 +231,21 @@ class SearchElements extends StatelessWidget {
   final Function(String) onSearchChanged;
   final Function(String) onCategoryChanged;
   final Function(String) onSortChanged;
+  final Function(String) onFilterChanged;
+  final List<Map> categories;
   final String selectedCategory;
   final String selectedSortBy;
-  final List<Map> categories;
+  final String selectedFilterBy;
 
   SearchElements({
     required this.onSearchChanged,
     required this.onCategoryChanged,
     required this.onSortChanged,
+    required this.onFilterChanged,
+    required this.categories,
     required this.selectedCategory,
     required this.selectedSortBy,
-    required this.categories,
+    required this.selectedFilterBy,
   });
 
   @override
@@ -220,13 +277,15 @@ class SearchElements extends StatelessWidget {
               value: selectedCategory,
               items: [
                 DropdownMenuItem(
-                    value: "All Categories", child: Text("All Categories")),
-                ...categories.map(
-                      (category) => DropdownMenuItem(
+                  value: "All Categories",
+                  child: Text("All Categories"),
+                ),
+                ...categories.map((category) {
+                  return DropdownMenuItem(
                     value: category['id_category'].toString(),
                     child: Text(category['category_name']),
-                  ),
-                ),
+                  );
+                }).toList(),
               ],
               onChanged: (value) {
                 onCategoryChanged(value!);
@@ -236,13 +295,28 @@ class SearchElements extends StatelessWidget {
             DropdownButton<String>(
               value: selectedSortBy,
               items: [
+                DropdownMenuItem(value: "None", child: Text("No Sorting")),
                 DropdownMenuItem(
-                    value: "Price (Low to High)", child: Text("Price (Low to High)")),
+                    value: "Price (Low to High)",
+                    child: Text("Price (Low to High)")),
                 DropdownMenuItem(
-                    value: "Price (High to Low)", child: Text("Price (High to Low)")),
+                    value: "Price (High to Low)",
+                    child: Text("Price (High to Low)")),
               ],
               onChanged: (value) {
                 onSortChanged(value!);
+              },
+            ),
+            SizedBox(width: 20),
+            DropdownButton<String>(
+              value: selectedFilterBy,
+              items: [
+                DropdownMenuItem(value: "None", child: Text("No Filter")),
+                DropdownMenuItem(
+                    value: "Most Sold Books", child: Text("Most Sold Books")),
+              ],
+              onChanged: (value) {
+                onFilterChanged(value!);
               },
             ),
           ],
@@ -250,4 +324,34 @@ class SearchElements extends StatelessWidget {
       ],
     );
   }
+}
+
+class Pair {
+  final String key;
+  final int value;
+
+  Pair(this.key, this.value);
+}
+
+Future<List<Book>> fetchBooksFromPairs(Future<List<Pair>> pairsFuture) async {
+  final pairs = await pairsFuture;
+  final books = <Book>[];
+  for (final pair in pairs) {
+    final bookResponse = await Database.database.readData(
+        "SELECT * FROM books WHERE title = '${pair.key}'");
+    if (bookResponse.isNotEmpty) {
+      final bookData = bookResponse.first;
+      books.add(Book(
+        price: bookData['price'],
+        title: bookData['title'],
+        author: bookData['author'],
+        category_id: bookData['id_cat'],
+        quantity: bookData['quantity'],
+        cover_URL: "assets/images/${bookData['cover_URL']}",
+        edition: bookData['edition'],
+        id_book: bookData['id_book'],
+      ));
+    }
+  }
+  return books;
 }
