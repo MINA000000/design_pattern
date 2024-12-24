@@ -1,5 +1,4 @@
 import 'package:design_pattern/user_package/book_items/book.dart';
-import 'package:design_pattern/user_package/cart_package/cart_page.dart';
 import 'package:design_pattern/single_data_base.dart';
 import 'package:flutter/material.dart';
 

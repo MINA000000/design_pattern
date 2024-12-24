@@ -1,4 +1,3 @@
-import 'package:design_pattern/user_package/cart_package/cart_page.dart';
 import 'package:design_pattern/user_package/cart_package1/cart_main_page.dart';
 import 'package:design_pattern/user_package/home_package/home_page.dart';
 import 'package:design_pattern/profile/profile_page.dart';
