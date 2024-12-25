@@ -8,11 +8,6 @@ class Maininventory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Inventory & Statistics"),
-        centerTitle: true,
-        backgroundColor: Colors.teal, // Change the app bar color
-      ),
       body: SingleChildScrollView(
         child: Center(
           child: Padding(

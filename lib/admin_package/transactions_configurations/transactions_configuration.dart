@@ -1,3 +1,4 @@
+import 'package:design_pattern/login_singup/first_screen.dart';
 import 'package:flutter/material.dart';
 import 'transaction_factory.dart';  // Import the factory
 import '../../single_data_base.dart';
@@ -31,11 +32,6 @@ class _TransactionsConfigurationState extends State<TransactionsConfiguration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Transactions Configuration"),
-        centerTitle: true,
-        backgroundColor: Colors.blueGrey,
-      ),
       body: FutureBuilder<List<Map>>(
         future: transactionsFuture,
         builder: (context, snapshot) {

@@ -1,3 +1,4 @@
+import 'package:design_pattern/login_singup/first_screen.dart';
 import 'package:design_pattern/user_package/cart_package1/cart_main_page.dart';
 import 'package:design_pattern/user_package/home_package/home_page.dart';
 import 'package:design_pattern/profile/profile_page.dart';
@@ -43,13 +44,26 @@ class _UserMainPageState extends State<UserMainPage> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue, Colors.purple], // Gradient background
+              colors: [Colors.purple, Colors.blue], // Gradient background
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
           ),
         ),
-        elevation: 10, // Shadow effect
+        elevation: 10,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout,color: Colors.red,),
+            onPressed: () {
+              // Navigate to the target screen and remove all other screens
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => FirstScreen()),
+                    (route) => false, // Remove all routes
+              );
+            },
+          ),
+        ],// Shadow effect
       ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

@@ -3,6 +3,7 @@ import 'package:design_pattern/admin_package/books_configurations/books_configur
 import 'package:design_pattern/admin_package/categories_configurations/categories_configuration.dart';
 import 'package:design_pattern/admin_package/transactions_configurations/confirmed_transactions.dart';
 import 'package:design_pattern/admin_package/transactions_configurations/transactions_configuration.dart';
+import 'package:design_pattern/login_singup/first_screen.dart';
 import 'package:flutter/material.dart';
 
 class MainAdminPage extends StatefulWidget {
@@ -23,7 +24,24 @@ class _MainAdminPageState extends State<MainAdminPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
+      appBar: AppBar(
+        title: Text("Admin Side"),
+        centerTitle: true,
+        backgroundColor: Colors.blueGrey,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout,color: Colors.red,),
+            onPressed: () {
+              // Navigate to the target screen and remove all other screens
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => FirstScreen()),
+                    (route) => false, // Remove all routes
+              );
+            },
+          ),
+        ],
+      ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
