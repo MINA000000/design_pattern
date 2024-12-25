@@ -23,8 +23,10 @@ class _DeleteBookItemState extends State<DeleteBookItem> {
     List<Map> transactions = await Database.database.readData('''
       SELECT * FROM transactions WHERE id_book = ${widget.bookItem['id_book']}
     ''');
-
-    if (transactions.isEmpty) {
+    List<Map> carts = await Database.database.readData("SELECT * FROM cart WHERE id_book = ${widget.bookItem['id_book']}");
+    print("carts here is : ${carts}");
+    print("transactions here is : ${transactions}");
+    if (transactions.isEmpty&&carts.isEmpty) {
       // No transactions, safe to delete the book
       int result = await Database.database.deleteData('''
         DELETE FROM books WHERE id_book = ${widget.bookItem['id_book']}
@@ -43,7 +45,7 @@ class _DeleteBookItemState extends State<DeleteBookItem> {
     } else {
       // Book cannot be deleted because it has related transactions
       setState(() {
-        statusMessage = "This book cannot be deleted because it has transactions.";
+        statusMessage = "This book cannot be deleted because it has transactions or in cart.";
       });
     }
 
