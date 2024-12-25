@@ -35,7 +35,7 @@ class _ConfirmedTransactionsState extends State<ConfirmedTransactions> {
                 itemCount: mydata.length,
                 itemBuilder: (context, index) {
                   // Use the factory to create the transaction item
-                  return TransactionFactory.createTransactionItem(mydata[index], () {});
+                  return TransactionFactory.createTransactionItem(transaction: mydata[index]);
                 },
               );
             } else {

@@ -49,7 +49,7 @@ class _TransactionsConfigurationState extends State<TransactionsConfiguration> {
               itemCount: mydata.length,
               itemBuilder: (context, index) {
                 // Use the factory to create the transaction item
-                return TransactionFactory.createTransactionItem(mydata[index], refreshTransactions);
+                return TransactionFactory.createTransactionItem(transaction: mydata[index],onMessageChanged: refreshTransactions);
               },
             );
           } else {
