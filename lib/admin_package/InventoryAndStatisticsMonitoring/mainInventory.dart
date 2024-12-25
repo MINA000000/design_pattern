@@ -207,41 +207,6 @@ class TopSoldBooksScreen extends StatelessWidget {
     return ans;
   }
 
-//   Future<List<Pair>> fetchTopSoldBooks() async {
-//     // Access the database instance
-//
-//     // SQL query to get top-sold books
-//     String sql = '''
-//   SELECT * FROM transactions WHERE id_status=1;
-//   ''';
-//
-// // Execute the query and return the results
-//     List<Map<String, dynamic>> response = await Database.database.readData(sql);
-//     Map<int, int> cnt = {};
-//
-// // Iterate through the results and count occurrences of id_book
-//     for (int i = 0; i < response.length; i++) {
-//       int bookId = response[i]['id_book'];
-//       cnt[bookId] = (cnt[bookId] ?? 0) + 1; // Increment count, initialize to 0 if null
-//     }
-//     List<Pair> ans = [];
-//     for (var entry in cnt.entries) {
-//       int key = entry.key;
-//       int value = entry.value;
-//       sql = "SELECT title FROM books WHERE id_book=${key}";
-//       List<Map> res = await Database.database.readData(sql);
-//       if (res.isNotEmpty) {
-//         ans.add(Pair(res[0]['title'], value));
-//       }
-//     }
-//     // cnt.forEach((key, value)async {
-//     //   sql = "SELECT title FROM books WHERE id_book=${key}";
-//     //   List<Map> res = await Database.database.readData(sql);
-//     //   ans.add(Pair(res[0]['title'], value));
-//     // });
-//     ans.sort((a, b) => b.value.compareTo(a.value));
-//     return ans;
-//   }
 
 }
 class Pair {
@@ -338,36 +303,28 @@ class PopularCategoriesScreen extends StatelessWidget {
   }
 
   Future<List<Pair>> fetchPopularCategories() async {
-    // Initialize the proxy database
     DatabaseInterface database = ProxyDatabase();
 
-    // Query to fetch all transactions with id_status = 1
     String sql = '''
     SELECT * FROM transactions WHERE id_status = 1;
   ''';
 
-    // Execute the query using the proxy database
     List<Map> response = await database.readData(sql);
     Map<int, int> bookCounts = {};
 
-    // Print the raw response for debugging
     print(response);
 
-    // Count occurrences of id_book
     for (var entry in response) {
       int bookId = entry['id_book'];
       bookCounts[bookId] = (bookCounts[bookId] ?? 0) + 1;
     }
 
-    // Map to hold the category counts
     Map<int, int> categoryCounts = {};
 
-    // Calculate category counts based on book IDs
     for (var entry in bookCounts.entries) {
       int bookId = entry.key;
       int count = entry.value;
 
-      // Query to fetch the category of a book
       sql = "SELECT id_cat FROM books WHERE id_book = $bookId";
       List<Map> bookResponse = await database.readData(sql);
 
@@ -377,15 +334,12 @@ class PopularCategoriesScreen extends StatelessWidget {
       }
     }
 
-    // List to store the final results
     List<Pair> result = [];
 
-    // Fetch category names and populate the result
     for (var entry in categoryCounts.entries) {
       int categoryId = entry.key;
       int count = entry.value;
 
-      // Query to fetch the category name
       sql = "SELECT category_name FROM categories WHERE id_category = $categoryId";
       List<Map> categoryResponse = await database.readData(sql);
 
@@ -395,7 +349,6 @@ class PopularCategoriesScreen extends StatelessWidget {
       }
     }
 
-    // Sort the result by count in descending order
     result.sort((a, b) => b.value.compareTo(a.value));
 
     return result;
@@ -434,17 +387,14 @@ class ProxyDatabase implements DatabaseInterface {
 
   @override
   Future<List<Map>> readData(String sql) async {
-    // Check if the query result is in the cache
     if (_cache.containsKey(sql)) {
       print("Returning cached result for query: $sql");
       return _cache[sql]!;
     }
 
-    // If not in cache, fetch from the real database
     print("Querying real database for: $sql");
     List<Map> result = await _realDatabase.readData(sql);
 
-    // Store the result in cache
     _cache[sql] = result;
     return result;
   }

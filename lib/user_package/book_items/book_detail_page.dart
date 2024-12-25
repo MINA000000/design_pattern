@@ -1,12 +1,12 @@
+import 'package:flutter/material.dart';
 import 'package:design_pattern/user_package/book_items/book.dart';
 import 'package:design_pattern/single_data_base.dart';
-import 'package:flutter/material.dart';
-
 import 'comments_page.dart'; // Import the CommentsPage file
 
 class BookDetailPage extends StatefulWidget {
   final Book book;
   final int id_customer;
+
   const BookDetailPage({required this.book, required this.id_customer});
 
   @override
@@ -15,7 +15,7 @@ class BookDetailPage extends StatefulWidget {
 
 class _BookDetailPageState extends State<BookDetailPage> {
   int _selectedQuantity = 1; // Default selected quantity is 1
-  String buttonName = "Add To Cart";
+  ButtonState _buttonState = AddToCartState(); // Default state is "Add To Cart"
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +30,10 @@ class _BookDetailPageState extends State<BookDetailPage> {
           children: [
             Image.asset(
               widget.book.cover_URL,
-              width: 183, // Fixed width
-              height: 275, // Fixed height
-              fit: BoxFit.cover, // Adjust to fit the box while maintaining the aspect ratio
+              width: 183,
+              height: 275,
+              fit: BoxFit.cover,
             ),
-
             const SizedBox(height: 20),
             Text(
               widget.book.title,
@@ -49,7 +48,6 @@ class _BookDetailPageState extends State<BookDetailPage> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            // Customized dropdown
             Container(
               width: 200,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -60,7 +58,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
               child: DropdownButton<int>(
                 value: _selectedQuantity,
                 isExpanded: true,
-                underline: SizedBox(), // Remove default underline
+                underline: SizedBox(),
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 16,
@@ -88,14 +86,11 @@ class _BookDetailPageState extends State<BookDetailPage> {
               width: 200,
               height: 50,
               child: ElevatedButton(
-                onPressed: (buttonName == "Updated" || buttonName == "Added")
-                    ? null
-                    : () async {
-                  // Check if the book already exists in the cart
+                onPressed: _buttonState.isEnabled
+                    ? () async {
                   List<Map> response = await Database.database.readData(
                       "SELECT * FROM 'cart' WHERE id_book = ${widget.book.id_book} AND id_customer = ${widget.id_customer}");
                   if (response.isNotEmpty) {
-                    // If the book exists, update the quantity
                     int newQuantity =
                         response[0]['quantity'] + _selectedQuantity;
                     String updateSql = '''
@@ -108,7 +103,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                     await Database.database.updateData(updateSql);
                     if (updateRes >= 1) {
                       setState(() {
-                        buttonName = "Updated";
+                        _buttonState = UpdatedState();
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -117,7 +112,6 @@ class _BookDetailPageState extends State<BookDetailPage> {
                       );
                     }
                   } else {
-                    // If the book doesn't exist in the cart, insert it
                     String insertSql = '''
                             INSERT INTO cart (id_customer, id_book, quantity)
                             VALUES (${widget.id_customer}, ${widget.book.id_book}, $_selectedQuantity);
@@ -126,20 +120,21 @@ class _BookDetailPageState extends State<BookDetailPage> {
                     await Database.database.insertData(insertSql);
                     if (insertRes >= 1) {
                       setState(() {
-                        buttonName = "Added";
+                        _buttonState = AddedState();
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Book added to cart")),
                       );
                     }
                   }
-                },
+                }
+                    : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: _buttonState.color,
                 ),
                 child: Text(
-                  buttonName,
-                  style: TextStyle(
+                  _buttonState.label,
+                  style: const TextStyle(
                       color: Colors.amber,
                       fontSize: 25,
                       fontWeight: FontWeight.bold),
@@ -161,7 +156,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, // Suitable color for the button
+                  backgroundColor: Colors.green,
                 ),
                 child: const Text(
                   "View Comments",
@@ -178,4 +173,46 @@ class _BookDetailPageState extends State<BookDetailPage> {
       ),
     );
   }
+}
+/// Abstract ButtonState class
+abstract class ButtonState {
+  String get label; // Label for the button
+  bool get isEnabled; // Whether the button is enabled
+  Color get color; // Button color
+}
+
+/// AddToCart state
+class AddToCartState implements ButtonState {
+  @override
+  String get label => "Add To Cart";
+
+  @override
+  bool get isEnabled => true;
+
+  @override
+  Color get color => Colors.blue;
+}
+
+/// Updated state
+class UpdatedState implements ButtonState {
+  @override
+  String get label => "Updated";
+
+  @override
+  bool get isEnabled => false;
+
+  @override
+  Color get color => Colors.grey;
+}
+
+/// Added state
+class AddedState implements ButtonState {
+  @override
+  String get label => "Added";
+
+  @override
+  bool get isEnabled => false;
+
+  @override
+  Color get color => Colors.green;
 }
