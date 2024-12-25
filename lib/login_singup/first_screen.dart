@@ -22,7 +22,6 @@ class FirstScreen extends StatelessWidget {
                   child: Text("Login in",style: TextStyle(color: Colors.amber,fontSize: 25,fontWeight: FontWeight.bold),),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-            
                 ),
               ),
             ),
